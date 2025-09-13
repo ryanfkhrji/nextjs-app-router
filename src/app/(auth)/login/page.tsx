@@ -63,7 +63,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen">
       <div className="p-6 w-full md:max-w-md rounded-sm shadow-sm">
         <h1 className="text-2xl font-bold mb-4 text-gray-600 text-center">Login</h1>
-        <form onSubmit={(event) => handleLogin(event)} className="bg-white p-6 rounded-md shadow-md">
+        <form onSubmit={(event) => handleLogin(event)} className="bg-white p-6 rounded-md">
           <div className="mb-4">
             <label className="block text-sm text-gray-600 font-semibold mb-2" htmlFor="email">
               Email
