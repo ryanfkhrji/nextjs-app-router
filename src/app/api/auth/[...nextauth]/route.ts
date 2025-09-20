@@ -9,10 +9,9 @@ interface FirestoreUser {
   email: string;
   fullname?: string;
   role: string;
-  password: string;
+  password?: string; // bikin optional biar aman di Google login
 }
 
-// Tipe return dari login()
 interface LoginResult {
   status: boolean;
   statusCode: number;
@@ -59,7 +58,6 @@ const authOptions: NextAuthOptions = {
         if (!result.status || !result.data) return null;
 
         const user = result.data;
-
         if (!user.password) return null;
 
         const passwordMatch = await compare(credentials.password, user.password);
@@ -76,35 +74,37 @@ const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user, account }) {
       if (user) {
-        token.email = (user.email as string) || "";
-        token.fullname = (user as FirestoreUser)?.fullname || "";
-        token.role = (user as FirestoreUser).role || "";
-        token.id = user.id;
+        token.email = (user.email as string) ?? "";
+        token.fullname = (user as FirestoreUser)?.fullname ?? "";
+        token.role = (user as FirestoreUser)?.role ?? "";
+        token.id = (user as FirestoreUser)?.id ?? "";
       }
-      if (account?.provider === "google") {
+
+      if (account?.provider === "google" && user?.email) {
         const data = {
           email: user.email,
-          fullname: user.name,
-          type: "google",
+          fullname: user.name ?? "",
+          type: "google" as const,
         };
 
-        await loginWithGoogle(data, (result: { status: boolean;  data: FirestoreUser }) => {
+        await loginWithGoogle(data, (result: { status: boolean; data: FirestoreUser }) => {
           if (result.status) {
-            token.email = result.data.email || "";
-            token.fullname = result.data.fullname || "";
-            token.role = result.data.role || "member";
-            token.id = result.data.id;
+            token.email = result.data.email ?? "";
+            token.fullname = result.data.fullname ?? "";
+            token.role = result.data.role ?? "member";
+            token.id = result.data.id ?? "";
           }
         });
       }
+
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.email = token.email || "";
+        session.user.email = token.email ?? "";
         session.user.fullname = token.fullname;
-        session.user.role = token.role || "";
-        session.user.id = token.id || "";
+        session.user.role = token.role ?? "";
+        session.user.id = token.id ?? "";
       }
       return session;
     },
