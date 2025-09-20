@@ -1,5 +1,5 @@
 import app from "./init";
-import { getFirestore, collection, getDocs, getDoc, doc, query, where, addDoc } from "firebase/firestore";
+import { getFirestore, collection, getDocs, getDoc, doc, query, where, addDoc, updateDoc } from "firebase/firestore";
 import bcrypt from "bcrypt";
 
 interface FirestoreUser {
@@ -15,6 +15,24 @@ export interface LoginResult {
   statusCode: number;
   message: string;
   data?: FirestoreUser;
+}
+
+// Tipe data input untuk loginWithGoogle
+export interface GoogleLoginData {
+  email: string;
+  fullname?: string;
+  type: "google";
+  role?: string;
+}
+
+// Tipe hasil return
+export interface GoogleLoginResult {
+  status: boolean;
+  message?: string;
+  email: string;
+  fullname?: string;
+  role: string;
+  id: string;
 }
 
 export async function retrieveData(collectionName: string) {
@@ -52,7 +70,7 @@ export async function register(
   if (users.length > 0) {
     return { status: true, statusCode: 400, message: "Email already registered" };
   } else {
-    data.role = "admin";
+    data.role = "member";
     data.password = await bcrypt.hash(data.password, 10);
     try {
       await addDoc(collection(firestore, "users"), data);
@@ -83,5 +101,25 @@ export async function login(data: { email: string }): Promise<LoginResult> {
       statusCode: 400,
       message: "Login failed",
     };
+  }
+}
+
+export async function loginWithGoogle(data: any, callback: any) {
+  const firestore = getFirestore(app);
+
+  const q = query(collection(firestore, "users"), where("email", "==", data.email));
+  const snapshot = await getDocs(q);
+  const user = snapshot.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<FirestoreUser, "id">) }));
+
+  if (user.length > 0) {
+    data.role = user[0].role;
+    await updateDoc(doc(firestore, "users", user[0].id), data).then(() => {
+      callback({status: true, data: data});
+    });
+  }else {
+    data.role = "member";
+    await addDoc(collection(firestore, "users"), data).then(() => {
+      callback({ status: true, data: data });
+    });
   }
 }

@@ -2,6 +2,7 @@
 // "use client";
 
 import { getData } from "@/services/products";
+import Image from "next/image";
 import Link from "next/link";
 
 // import { useState, useEffect } from "react";
@@ -150,7 +151,7 @@ export default async function ProductPage(props: ProductPageProps) {
           {products.data.length > 0 ? (
             products.data.map((product: ProductPageProps) => (
               <Link href={`/product/detail/${product.id}`} className="w-full bg-white dark:bg-gray-800 dark:border-gray-700" key={product.id}>
-                <img className="object-cover bg-cover bg-no-repeat bg-center w-full h-[300px]" src={product.image || "/windows.svg"} alt={product.title || "No title"} />
+                <Image className="object-cover bg-cover bg-no-repeat bg-center w-full h-[300px]" src={product.image || "/windows.svg"} alt={product.title || "No title"} width={500} height={500} loading="lazy" />
                 <div className="p-1 mt-1.5">
                   <h5 className="text-lg font-medium tracking-tight text-gray-900 dark:text-white line-clamp-1">{product.title}</h5>
                   <p className="text-sm text-gray-400 dark:text-gray-400">{product.category}</p>

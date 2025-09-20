@@ -1,5 +1,6 @@
 import Modal from "@/components/core/Modal";
 import { getData } from "@/services/products";
+import Image from "next/image";
 
 type DetailProductPageProps = {
   params: { id: string };
@@ -18,7 +19,7 @@ export default async function ModalPage(
       <h1 className="text-center text-xl mt-10 mb-5 font-semibold">Detail Product</h1>
       <div className="flex justify-center items-center gap-4 bg-white shadow-md rounded-lg p-4 border border-gray-300">
         <div className="w-fit mx-auto">
-          <img src={product.data.image} alt={product.data.title} className="object-contain bg-cover bg-no-repeat bg-center w-full" />
+          <Image src={product.data.image} alt={product.data.title} className="object-contain bg-cover bg-no-repeat bg-center w-full" width={500} height={500} />
         </div>
         <div>
           <h5 className="text-lg font-medium tracking-tight text-gray-900">{product.data.title}</h5>

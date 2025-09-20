@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function LoginPage() {
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
   // set loading state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +24,8 @@ export default function LoginPage() {
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
+    const callbackUrl = (searchParams?.callbackUrl as string) || "/";
+
     try {
       setLoading(true);
 
@@ -27,12 +33,12 @@ export default function LoginPage() {
         redirect: false,
         email,
         password,
-        callbackUrl: "/dashboard",
+        callbackUrl,
       });
 
       if (!res?.error) {
         alert("Login success");
-        push("/dashboard");
+        push(callbackUrl);
       } else {
         if (res.status === 401) {
           setError("Invalid email or password");
@@ -66,6 +72,10 @@ export default function LoginPage() {
           </div>
           <button type="submit" disabled={loading} className="w-full bg-gray-700 hover:bg-gray-800 mt-4 mb-6 cursor-pointer text-white py-2 rounded-md">
             {loading ? "Loading..." : "Login"}
+          </button>
+          <hr />
+          <button type="button" onClick={() => signIn("google", { callbackUrl: "/", redirect: false })} className="w-full border border-gray-700 hover:bg-gray-100 mt-4 mb-6 cursor-pointer text-gray-700 py-2 rounded-md">
+            Login with Google
           </button>
           <p className="text-sm text-gray-500 text-center">
             Don`t have an account?{" "}

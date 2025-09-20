@@ -8,7 +8,12 @@ const nextConfig: NextConfig = {
         hostname: "fakestoreapi.com",
         port: "",
         pathname: "/products/**",
-        search: "",
+      },
+      {
+        protocol: "https",
+        hostname: "static.nike.com",
+        port: "",
+        pathname: "/**",
       },
     ],
   },

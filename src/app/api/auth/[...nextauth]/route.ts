@@ -1,7 +1,8 @@
-import { login } from "@/lib/firebase/service";
+import { login, loginWithGoogle } from "@/lib/firebase/service";
 import { compare } from "bcrypt";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
 interface FirestoreUser {
   id: string;
@@ -43,7 +44,7 @@ const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET || "12345678",
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -67,14 +68,34 @@ const authOptions: NextAuthOptions = {
         return user;
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_OAUTH_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET || "",
+    }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
-        token.email = user.email as string || "";
+        token.email = (user.email as string) || "";
         token.fullname = (user as FirestoreUser)?.fullname || "";
         token.role = (user as FirestoreUser).role || "";
         token.id = user.id;
+      }
+      if (account?.provider === "google") {
+        const data = {
+          email: user.email,
+          fullname: user.name,
+          type: "google",
+        };
+
+        await loginWithGoogle(data, (result: { status: boolean;  data: FirestoreUser }) => {
+          if (result.status) {
+            token.email = result.data.email || "";
+            token.fullname = result.data.fullname || "";
+            token.role = result.data.role || "member";
+            token.id = result.data.id;
+          }
+        });
       }
       return token;
     },

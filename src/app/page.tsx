@@ -1,3 +1,11 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'My Next.js App',
+  description: 'This is a sample Next.js application with custom metadata.',
+  authors: [{ name: 'Ryan Fakhroji', url: 'http://localhost:3000' }],
+}
+
 export default function Home() {
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">

@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -33,7 +33,7 @@ const Navbar = () => {
             <button
               className="border border-gray-700 hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-full cursor-pointer"
               onClick={() => {
-                signIn();
+                signOut();
               }}
             >
               Logout

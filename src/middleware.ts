@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import withAuth from "./middlewares/withAuth";
 
-export function middleware(request: NextRequest) {
-  const isLogin = true;
-
-  if (!isLogin) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+export function mainMiddleware(request: NextRequest) {
+  const response = NextResponse.next();
+  return response;
 }
 
-export const config = {
-  matcher: ["/dashboard/:path*", "/product/:path*"], //path* berfungsi untuk semua path yang ada di dashboard
-};
+export default withAuth(mainMiddleware, ["/dashboard", "/profile", "/login", "/register"]);
