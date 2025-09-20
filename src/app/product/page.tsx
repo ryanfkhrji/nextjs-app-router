@@ -1,13 +1,9 @@
-// NEW CODE WITH CATEGORY FILTER
-// "use client";
+"use client";
 
-import { getData } from "@/services/products";
 import Image from "next/image";
 import Link from "next/link";
+import useSWR from "swr";
 
-// import { useState, useEffect } from "react";
-
-// interface Product {
 //   id: number;
 //   title: string;
 //   price: number;
@@ -24,7 +20,7 @@ import Link from "next/link";
 //   const getProducts = async (category?: string) => {
 //     setLoading(true);
 //     try {
-//       let url = "http://localhost:3000/api/product";
+//       let url = `${process.env.NEXT_PUBLIC_API_URL}/api/product`;
 //       if (category && category !== "All") {
 //         url += `?category=${encodeURIComponent(category)}`;
 //       }
@@ -119,37 +115,31 @@ interface ProductPageProps {
   image: string;
 };
 
-export default async function ProductPage(props: ProductPageProps) {
-  const { params } = await props;
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+export default function ProductPage(props: ProductPageProps) {
+  const { params } = props;
+
+  // fetch data with swr
+  const {data} = useSWR(`${process.env.NEXT_PUBLIC_API_URL}/api/product`, fetcher);
 
   // Fetch data from an API
-  const products = await getData("http://localhost:3000/api/product");
+  // const products = await getData(`${process.env.NEXT_PUBLIC_API_URL}/api/product`);
+
+  const products = {
+    data: data?.data || [],
+  };
 
   return (
     <div>
       {/* title */}
       <h1 className="text-center text-xl mt-10 mb-5">{params.slug ? "Detail Product" : "Products"}</h1>
 
-      {/* select berdasarkan category */}
-      {/* <div className="w-full md:max-w-screen-md mx-auto overflow-auto mb-10">
-        <div className="flex justify-center items-center gap-3">
-          <button type="button" className="px-4 py-1.5 cursor-pointer bg-white border border-gray-700 rounded-full hover:bg-gray-700 hover:text-white">
-            All
-          </button>
-          <button type="button" className="px-4 py-1.5 cursor-pointer bg-white border border-gray-700 rounded-full hover:bg-gray-700 hover:text-white">
-            Mens Shoes
-          </button>
-          <button type="button" className="px-4 py-1.5 cursor-pointer bg-white border border-gray-700 rounded-full hover:bg-gray-700 hover:text-white">
-            Women Shoes
-          </button>
-        </div>
-      </div> */}
-
       {/* load data products */}
       <div className="px-4 md:px-10 lg:px-20 mb-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {products.data.length > 0 ? (
-            products.data.map((product: ProductPageProps) => (
+          {products.data?.length > 0 ? (
+            products.data?.map((product: ProductPageProps) => (
               <Link href={`/product/detail/${product.id}`} className="w-full bg-white dark:bg-gray-800 dark:border-gray-700" key={product.id}>
                 <Image className="object-cover bg-cover bg-no-repeat bg-center w-full h-[300px]" src={product.image || "/windows.svg"} alt={product.title || "No title"} width={500} height={500} loading="lazy" />
                 <div className="p-1 mt-1.5">
